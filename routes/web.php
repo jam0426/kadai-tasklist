@@ -11,6 +11,6 @@
 |
 */
 
-Route::get('/', 'TaskController@index');
+Route::get('/', 'TasksController@index');
 // create: 新規作成用のフォームページ
-Route::resource('tasks', 'TaskController');
+Route::resource('tasks', 'TasksController');
