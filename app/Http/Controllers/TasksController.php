@@ -9,13 +9,21 @@ class TasksController extends Controller
 {
     public function index()
     {
-        //タスク一覧表示
-        $tasks = Task::orderBy('id', 'desc')->paginate(25);
-        
-        //タスク一覧ビューでそれを表示
-        return view('tasks.index',[
-            'tasks' => $tasks
-        ]);
+        $data = [];
+        if (\Auth::check()) { // 認証済みの場合
+            // 認証済みユーザを取得
+            $user = \Auth::user();
+            // ユーザの投稿の一覧を作成日時の降順で取得
+            $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
+
+            $data = [
+                'user' => $user,
+                'tasks' => $tasks,
+            ];
+        }
+
+        // Welcomeビューでそれらを表示
+        return view('welcome', $data);
     }
 
     public function create()
@@ -40,9 +48,10 @@ class TasksController extends Controller
         $task = new Task;
         $task->content = $request->content;
         $task->status = $request->status;
+        $task->user_id = $request->user()->id;
         $task->save();
         
-        //トップページへリダイレクト
+        //前のURLへリダイレクト
         return redirect('/');
     }
 
@@ -51,9 +60,16 @@ class TasksController extends Controller
         //idの値でタスクを検索して取得
         $task = Task::findOrFail($id);
         
-        //タスク詳細でそれを表示
-        return view('tasks.show', [
-            'task' => $task,    
+        // 関係するモデルの件数をロード
+        $user->loadRelationshipCounts();
+
+        // ユーザの投稿一覧を作成日時の降順で取得
+        $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
+
+        // ユーザ詳細ビューでそれらを表示
+        return view('users.show', [
+            'user' => $user,
+            'tasks' => $tasks,
         ]);
     }
 
@@ -76,25 +92,33 @@ class TasksController extends Controller
             'status' => 'required|max:10',
         ]);
         
-        // idの値でタスクを検索して取得
-        $task = Task::findOrFail($id);
-        // タスクを更新
-        $task->content = $request->content;
-        $task->status = $request->status;
-        $task->save();
-
-        // トップページへリダイレクトさせる
-        return redirect('/');
+        $data = [];
+        if (\Auth::check()) {  //認証済みの場合
+            // 認証済みのユーザを取得
+            $user = \Auth::user();
+            
+            $task = Task::findOrFail($id);
+            $task->content = $request->content;
+            $task->status = $request->status;
+            $task->save();
+            
+            
+            return redirect('/');
+        }
+        //Welcomビューでそれらを表示
+        return view('welcome', $data);
     }
 
     public function destroy($id)
     {
         //idの値でメッセージを検索して取得
-        $task = Task::findOrFail($id);
-        //メッセージを削除
-        $task->delete();
+        $task = \App\Task::findOrFail($id);
+        // 認証済みユーザ（閲覧者）がその投稿の所有者である場合は、投稿を削除
+        if (\Auth::id() === $task->user_id) {
+            $task->delete();
+        }
         
-        //トップページへリダイレクトさせる
-        return redirect('/');
+        //前のURLへリダイレクト
+        return back();
     }
 }
