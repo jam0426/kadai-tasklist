@@ -54,12 +54,9 @@ class TasksController extends Controller
                 'content' => 'required|max:255',
                 'status' => 'required|max:10',
             ]);
+
             
-            $request->user()->tasks()->create([
-            'content' => $request->content,
-            'status' => $request->status,
-            ]);
-    
+            
             //タスクを作成
             $task = new Task;
             $task->content = $request->content;
@@ -69,9 +66,11 @@ class TasksController extends Controller
             
             //前のURLへリダイレクト
             return redirect('/');
+        }else{
+            return view('welcome', $data);
         }
-        return view('welcome', $data);
     }
+    
 
     public function show($id)
     {

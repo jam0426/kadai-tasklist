@@ -16,20 +16,17 @@
                         <p class="mb-0">Status：{!! nl2br(e($task->status)) !!}</p>
                     </div>
                     <div class = "row">
-                        <div>
-                            @if (Auth::id() == $task->user_id)
-                                {{-- メッセージ編集ページへのリンク --}}
-                                {!! link_to_route('tasks.edit', 'Update', ['task' => $task->id], ['class' => 'btn btn-light']) !!}
-                            @endif
-                        </div>
-                        <div>
-                            @if (Auth::id() == $task->user_id)
+                        @if (Auth::id() == $task->user_id)
+                            <div>
+                               {!! link_to_route('tasks.edit', 'Update', ['task' => $task->id], ['class' => 'btn btn-light']) !!}
+                            </div>
+                            <div>
                                 {{-- 投稿削除ボタンのフォーム --}}
                                 {!! Form::open(['route' => ['tasks.destroy', $task->id], 'method' => 'delete']) !!}
                                     {!! Form::submit('Delete', ['class' => 'btn btn-danger btn-sm']) !!}
                                 {!! Form::close() !!}
-                            @endif
-                        </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </li>

@@ -1,6 +1,7 @@
 {!! Form::open(['route' => 'tasks.store']) !!}
     <div class = "form-group">
-    {{-- タスク作成ページへのリンク --}}
-    {!! link_to_route('tasks.create', 'New Task', [], ['class' => 'btn btn-primary']) !!}
-    </DIV>
+        Task:{!! Form::textarea('content', old('content'), ['class' => 'form-control', 'rows' => '1']) !!}
+        Status:{!! Form::textarea('status',old('status'),['class' => 'form-control', 'rows' => '1']) !!}</br>
+        {!! Form::submit('Post', ['class' => 'btn btn-primary btn-block']) !!}
+    </div>
 {!! Form::close() !!}
