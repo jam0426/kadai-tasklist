@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Task;
+use Auth;
 
 class TasksController extends Controller
 {
@@ -21,8 +22,6 @@ class TasksController extends Controller
                 'tasks' => $tasks,
             ];
         }
-
-        // Welcomeビューでそれらを表示
         return view('welcome', $data);
     }
 
@@ -38,9 +37,9 @@ class TasksController extends Controller
             return view('tasks.create', [
                 'task' => $task,
             ]);
-        }
-        
+        }else{
         return view('welcome', $data);
+        }
     }
 
     public function store(Request $request)
@@ -92,9 +91,9 @@ class TasksController extends Controller
                 'user' => $user,
                 'tasks' => $tasks,
             ]);
-        }
-        
+        }else{
         return view('welcome', $data);
+        }
     }
 
     public function edit($id)
@@ -106,13 +105,15 @@ class TasksController extends Controller
             //idの値でタスクを検索して取得
             $task = Task::findOrFail($id);
             
+            if (Auth::id() == $task->user_id){
             //タスク編集ビューでそれを表示
             return view('tasks.edit', [
                 'task' => $task,
             ]);
+            }else{
+                return redirect()->route('logout.get');
+            }
         }
-        return view('welcome', $data);
-        
     }
 
     public function update(Request $request, $id)
@@ -135,9 +136,9 @@ class TasksController extends Controller
                 
                 
             return redirect('/');
-        }
-        //Welcomビューでそれらを表示
+        }else{
         return view('welcome', $data);
+        }
     }
 
     public function destroy($id)
@@ -153,7 +154,8 @@ class TasksController extends Controller
             }
             //前のURLへリダイレクト
             return back();
-        }
+        }else{
         return view('welcome', $data);
+        }
     }
 }

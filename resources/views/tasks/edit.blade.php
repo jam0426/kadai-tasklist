@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    @if (Auth::check())
+    @if (Auth::id())
         <div class="row">
             <div class="col-6">
                 {!! Form::model($task, ['route' => ['tasks.update', $task->id], 'method' => 'put']) !!}
@@ -22,5 +22,4 @@
             </div>
         </div>
     @endif
-
 @endsection
