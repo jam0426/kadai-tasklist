@@ -111,7 +111,7 @@ class TasksController extends Controller
                 'task' => $task,
             ]);
             }else{
-                return redirect()->route('logout.get');
+                return redirect('/');
             }
         }
     }
