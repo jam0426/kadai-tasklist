@@ -76,21 +76,18 @@ class TasksController extends Controller
         if (\Auth::check()) { // 認証済みの場合
             // 認証済みユーザを取得
             $user = \Auth::user();
-            
             //idの値でタスクを検索して取得
             $task = Task::findOrFail($id);
             
-            // 関係するモデルの件数をロード
-            $user->loadRelationshipCounts();
-    
-            // ユーザの投稿一覧を作成日時の降順で取得
-            $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
-    
-            // ユーザ詳細ビューでそれらを表示
-            return view('users.show', [
-                'user' => $user,
-                'tasks' => $tasks,
-            ]);
+            if (Auth::id() == $task->user_id){
+                
+                // メッセージ詳細ビューでそれを表示
+                return view('tasks.show', [
+                    'task' => $task,
+                ]);
+            }else{
+                return redirect('/');
+            }
         }else{
         return view('welcome', $data);
         }
@@ -148,12 +145,15 @@ class TasksController extends Controller
             $user = \Auth::user();
             //idの値でメッセージを検索して取得
             $task = \App\Task::findOrFail($id);
-            // 認証済みユーザ（閲覧者）がその投稿の所有者である場合は、投稿を削除
-            if (\Auth::id() === $task->user_id) {
+            
+            if (Auth::id() == $task->user_id){
+                // 認証済みユーザ（閲覧者）がその投稿の所有者である場合は、投稿を削除
                 $task->delete();
+                //前のURLへリダイレクト
+                return redirect('/');
+            }else{
+                return redirect('/');
             }
-            //前のURLへリダイレクト
-            return back();
         }else{
         return view('welcome', $data);
         }
