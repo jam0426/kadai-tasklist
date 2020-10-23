@@ -21,9 +21,8 @@ class TasksController extends Controller
                 'user' => $user,
                 'tasks' => $tasks,
             ];
-        }else{
-            return view('welcome', $data);
         }
+        return view('welcome', $data);
     }
 
     public function create()
