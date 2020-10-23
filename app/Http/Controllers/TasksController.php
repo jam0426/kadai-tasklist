@@ -27,135 +27,114 @@ class TasksController extends Controller
 
     public function create()
     {
-        if (\Auth::check()) { // 認証済みの場合
-            // 認証済みユーザを取得
-            $user = \Auth::user();
-            
-            $task = new Task;
+        // 認証済みユーザを取得
+        $user = \Auth::user();
+        
+        $task = new Task;
     
-            // タスク作成ビューを表示
-            return view('tasks.create', [
-                'task' => $task,
-            ]);
-        }else{
-        return view('welcome', $data);
-        }
+        // タスク作成ビューを表示
+        return view('tasks.create', [
+            'task' => $task,
+        ]);
     }
 
     public function store(Request $request)
     {
-        if (\Auth::check()) { // 認証済みの場合
-            // 認証済みユーザを取得
-            $user = \Auth::user();
+        // 認証済みユーザを取得
+        $user = \Auth::user();
 
-            // バリデーション
-            $request->validate([
-                'content' => 'required|max:255',
-                'status' => 'required|max:10',
-            ]);
-
-            
-            
-            //タスクを作成
-            $task = new Task;
-            $task->content = $request->content;
-            $task->status = $request->status;
-            $task->user_id = $request->user()->id;
-            $task->save();
-            
-            //前のURLへリダイレクト
-            return redirect('/');
-        }else{
-            return view('welcome', $data);
-        }
+        // バリデーション
+        $request->validate([
+            'content' => 'required|max:255',
+            'status' => 'required|max:10',
+        ]);
+        
+        //タスクを作成
+        $task = new Task;
+        $task->content = $request->content;
+        $task->status = $request->status;
+        $task->user_id = $request->user()->id;
+        $task->save();
+        
+        //前のURLへリダイレクト
+        return redirect('/');
     }
     
 
     public function show($id)
     {
-        if (\Auth::check()) { // 認証済みの場合
-            // 認証済みユーザを取得
-            $user = \Auth::user();
-            //idの値でタスクを検索して取得
-            $task = Task::findOrFail($id);
+        // 認証済みユーザを取得
+        $user = \Auth::user();
+        //idの値でタスクを検索して取得
+        $task = Task::findOrFail($id);
+        
+        if (Auth::id() == $task->user_id){
             
-            if (Auth::id() == $task->user_id){
-                
-                // メッセージ詳細ビューでそれを表示
-                return view('tasks.show', [
-                    'task' => $task,
-                ]);
-            }else{
-                return redirect('/');
-            }
+            // メッセージ詳細ビューでそれを表示
+            return view('tasks.show', [
+                'task' => $task,
+            ]);
         }else{
-        return view('welcome', $data);
+            return redirect('/');
         }
+        
     }
 
     public function edit($id)
     {
-        if (\Auth::check()) { // 認証済みの場合
-            // 認証済みユーザを取得
-            $user = \Auth::user();
-            
-            //idの値でタスクを検索して取得
-            $task = Task::findOrFail($id);
-            
-            if (Auth::id() == $task->user_id){
-            //タスク編集ビューでそれを表示
-            return view('tasks.edit', [
-                'task' => $task,
-            ]);
-            }else{
-                return redirect('/');
-            }
+        // 認証済みユーザを取得
+        $user = \Auth::user();
+        
+        //idの値でタスクを検索して取得
+        $task = Task::findOrFail($id);
+        
+        if (Auth::id() == $task->user_id){
+        //タスク編集ビューでそれを表示
+        return view('tasks.edit', [
+            'task' => $task,
+        ]);
         }
     }
 
     public function update(Request $request, $id)
     {
-        if (\Auth::check()) { // 認証済みの場合
-            // 認証済みユーザを取得
-            $user = \Auth::user();
-            //バリデーション
-            $request->validate([
-                'content' => 'required|max:255',
-                'status' => 'required|max:10',
-            ]);
+        // 認証済みユーザを取得
+        $user = \Auth::user();
+        //バリデーション
+        $request->validate([
+            'content' => 'required|max:255',
+            'status' => 'required|max:10',
+        ]);
+        
+        $data = [];
             
-            $data = [];
-                
-            $task = Task::findOrFail($id);
+        $task = Task::findOrFail($id);
+        if (Auth::id() == $task->user_id){
             $task->content = $request->content;
             $task->status = $request->status;
             $task->save();
-                
-                
+            
             return redirect('/');
         }else{
-        return view('welcome', $data);
+            return redirect('/');
         }
+
     }
 
     public function destroy($id)
     {
-        if (\Auth::check()) { // 認証済みの場合
-            // 認証済みユーザを取得
-            $user = \Auth::user();
-            //idの値でメッセージを検索して取得
-            $task = \App\Task::findOrFail($id);
-            
-            if (Auth::id() == $task->user_id){
-                // 認証済みユーザ（閲覧者）がその投稿の所有者である場合は、投稿を削除
-                $task->delete();
-                //前のURLへリダイレクト
-                return redirect('/');
-            }else{
-                return redirect('/');
-            }
+        // 認証済みユーザを取得
+        $user = \Auth::user();
+        //idの値でメッセージを検索して取得
+        $task = \App\Task::findOrFail($id);
+        
+        if (Auth::id() == $task->user_id){
+            // 認証済みユーザ（閲覧者）がその投稿の所有者である場合は、投稿を削除
+            $task->delete();
+            //前のURLへリダイレクト
+            return redirect('/');
         }else{
-        return view('welcome', $data);
+            return redirect('/');
         }
     }
 }
